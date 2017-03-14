@@ -29,7 +29,7 @@ else
 	LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 endif
 
-LOCAL_MODULE := gralloc.s5pxx18
+LOCAL_MODULE := gralloc.$(TARGET_BOOTLOADER_BOARD_NAME)
 SHARED_MEM_LIBS := libion libhardware
 LOCAL_SHARED_LIBRARIES := liblog libcutils libGLESv1_CM $(SHARED_MEM_LIBS)
 
