@@ -60,7 +60,7 @@ struct fb_dmabuf_export
 	__u32 fd;
 	__u32 flags;
 };
-/*#define FBIOGET_DMABUF    _IOR('F', 0x21, struct fb_dmabuf_export)*/
+#define FBIOGET_DMABUF    _IOR('F', 0x21, struct fb_dmabuf_export)
 
 #if PLATFORM_SDK_VERSION >= 21
 typedef int ion_user_handle_t;
