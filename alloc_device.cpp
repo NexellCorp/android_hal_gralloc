@@ -96,7 +96,9 @@ static int __ump_alloc_should_fail()
 #endif
 
 
-static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage, buffer_handle_t *pHandle)
+static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage,
+								buffer_handle_t *pHandle,
+								unsigned int mask = ION_HEAP_SYSTEM_MASK)
 {
 #if GRALLOC_ARM_DMA_BUF_MODULE
 	{
@@ -120,7 +122,7 @@ static int gralloc_alloc_buffer(alloc_device_t *dev, size_t size, int usage, buf
 		}
 		else
 		{
-			heap_mask = ION_HEAP_SYSTEM_MASK;
+			heap_mask = mask;
 		}
 
 		ret = ion_alloc(m->ion_client, size, 0, heap_mask, 0, &(ion_hnd));
@@ -325,7 +327,8 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t *dev, size_t size, in
 	if (bufferMask >= ((1LU << numBuffers) - 1))
 	{
 		// We ran out of buffers.
-		return -ENOMEM;
+		// Assume this allocation request is for HDMI
+		return gralloc_alloc_buffer(dev, size, usage, pHandle, ION_HEAP_TYPE_DMA_MASK);
 	}
 
 	void *vaddr = m->framebuffer->base;
@@ -399,6 +402,7 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 
 	size_t size;
 	size_t stride;
+	uint32_t heap_mask = ION_HEAP_SYSTEM_MASK;
 
 	if (format == HAL_PIXEL_FORMAT_YCrCb_420_SP || format == HAL_PIXEL_FORMAT_YV12
 	        /* HAL_PIXEL_FORMAT_YCbCr_420_SP, HAL_PIXEL_FORMAT_YCbCr_420_P, HAL_PIXEL_FORMAT_YCbCr_422_I are not defined in Android.
@@ -410,6 +414,7 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 #endif
 	   )
 	{
+		heap_mask = ION_HEAP_TYPE_DMA_MASK;
 		switch (format)
 		{
 			case HAL_PIXEL_FORMAT_YCrCb_420_SP:
@@ -488,7 +493,7 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 #endif
 
 	{
-		err = gralloc_alloc_buffer(dev, size, usage, pHandle);
+		err = gralloc_alloc_buffer(dev, size, usage, pHandle, heap_mask);
 	}
 
 	if (err < 0)
