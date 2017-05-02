@@ -319,6 +319,75 @@ static int gralloc_lock(gralloc_module_t const *module, buffer_handle_t handle, 
 	return 0;
 }
 
+#ifndef GRALLOC_ALIGN
+#define GRALLOC_ALIGN( value, base ) (((value) + ((base) - 1)) & ~((base) - 1))
+#endif
+
+static int gralloc_lock_ycbcr(gralloc_module_t const *module,
+							  buffer_handle_t handle, int usage, int l, int t,
+							  int w, int h, struct android_ycbcr *ycbcr)
+{
+	if (private_handle_t::validate(handle) < 0)
+	{
+		AERR("Locking invalid buffer 0x%p, returning error", handle);
+		return -EINVAL;
+	}
+
+	private_handle_t *hnd = (private_handle_t *)handle;
+
+	pthread_mutex_lock(&s_map_lock);
+
+	if (hnd->lockState & private_handle_t::LOCK_STATE_UNREGISTERED)
+	{
+		AERR("Locking on an unregistered buffer 0x%p, returning error", hnd);
+		pthread_mutex_unlock(&s_map_lock);
+		return -EINVAL;
+	}
+
+	if (hnd->flags & private_handle_t::PRIV_FLAGS_USES_UMP || hnd->flags & private_handle_t::PRIV_FLAGS_USES_ION)
+	{
+		hnd->writeOwner = usage & GRALLOC_USAGE_SW_WRITE_MASK;
+	}
+
+	hnd->lockState |= private_handle_t::LOCK_STATE_WRITE;
+
+	pthread_mutex_unlock(&s_map_lock);
+
+	if (usage & (GRALLOC_USAGE_SW_READ_MASK | GRALLOC_USAGE_SW_WRITE_MASK))
+	{
+		switch (hnd->format)
+		{
+			case HAL_PIXEL_FORMAT_YV12:
+#ifdef SUPPORT_LEGACY_FORMAT
+			case HAL_PIXEL_FORMAT_YCbCr_420_P:
+#endif
+				memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
+				ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
+				ycbcr->ystride = hnd->stride;
+				ycbcr->cb = (void *)((unsigned long)ycbcr->y +
+									 ycbcr->ystride *
+									 GRALLOC_ALIGN(hnd->height, 2));
+				ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
+				ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
+									 ycbcr->cstride *
+									 GRALLOC_ALIGN(hnd->height / 2, 2));
+				ycbcr->chroma_step = 1;
+				break;
+
+			default:
+				AERR("Not supported format: 0x%x", hnd->format);
+				return -EINVAL;
+		}
+	}
+
+	MALI_IGNORE(module);
+	MALI_IGNORE(l);
+	MALI_IGNORE(t);
+	MALI_IGNORE(w);
+	MALI_IGNORE(h);
+	return 0;
+}
+
 static int gralloc_unlock(gralloc_module_t const *module, buffer_handle_t handle)
 {
 	MALI_IGNORE(module);
@@ -398,6 +467,7 @@ private_module_t::private_module_t()
 	base.unregisterBuffer = gralloc_unregister_buffer;
 	base.lock = gralloc_lock;
 	base.unlock = gralloc_unlock;
+	base.lock_ycbcr = gralloc_lock_ycbcr;
 	base.perform = NULL;
 	INIT_ZERO(base.reserved_proc);
 
