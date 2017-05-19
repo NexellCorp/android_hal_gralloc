@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
@@ -405,6 +404,8 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 	uint32_t heap_mask = ION_HEAP_SYSTEM_MASK;
 
 	if (format == HAL_PIXEL_FORMAT_YCrCb_420_SP || format == HAL_PIXEL_FORMAT_YV12
+	    || format == HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED
+	    || format == HAL_PIXEL_FORMAT_YCbCr_420_888
 	        /* HAL_PIXEL_FORMAT_YCbCr_420_SP, HAL_PIXEL_FORMAT_YCbCr_420_P, HAL_PIXEL_FORMAT_YCbCr_422_I are not defined in Android.
 	         * To enable Mali DDK EGLImage support for those formats, firstly, you have to add them in Android system/core/include/system/graphics.h.
 	         * Then, define SUPPORT_LEGACY_FORMAT in the same header file(Mali DDK will also check this definition).
@@ -423,6 +424,8 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 				break;
 
 			case HAL_PIXEL_FORMAT_YV12:
+			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+			case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 			case HAL_PIXEL_FORMAT_YCbCr_420_P:
 #endif
