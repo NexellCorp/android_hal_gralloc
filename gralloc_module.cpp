@@ -353,31 +353,44 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 
 	pthread_mutex_unlock(&s_map_lock);
 
-	if (usage & (GRALLOC_USAGE_SW_READ_MASK | GRALLOC_USAGE_SW_WRITE_MASK))
+	switch (hnd->format)
 	{
-		switch (hnd->format)
-		{
-			case HAL_PIXEL_FORMAT_YV12:
+	case HAL_PIXEL_FORMAT_YV12:
 #ifdef SUPPORT_LEGACY_FORMAT
-			case HAL_PIXEL_FORMAT_YCbCr_420_P:
+	case HAL_PIXEL_FORMAT_YCbCr_420_P:
 #endif
-				memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
-				ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
-				ycbcr->ystride = hnd->stride;
-				ycbcr->cb = (void *)((unsigned long)ycbcr->y +
-									 ycbcr->ystride *
-									 GRALLOC_ALIGN(hnd->height, 2));
-				ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
-				ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
-									 ycbcr->cstride *
-									 GRALLOC_ALIGN(hnd->height / 2, 2));
-				ycbcr->chroma_step = 1;
-				break;
+		// yuv420: ycbcr
+		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
+		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
+		ycbcr->ystride = hnd->stride;
+		ycbcr->cb = (void *)((unsigned long)ycbcr->y +
+							 ycbcr->ystride *
+							 GRALLOC_ALIGN(hnd->height, 2));
+		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
+		ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
+							 ycbcr->cstride *
+							 GRALLOC_ALIGN(hnd->height / 2, 2));
+		ycbcr->chroma_step = 1;
+		break;
 
-			default:
-				AERR("Not supported format: 0x%x", hnd->format);
-				return -EINVAL;
-		}
+	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+		// yuv420: ycrcb
+		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
+		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
+		ycbcr->ystride = hnd->stride;
+		ycbcr->cr = (void *)((unsigned long)ycbcr->y +
+							 ycbcr->ystride *
+							 GRALLOC_ALIGN(hnd->height, 2));
+		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
+		ycbcr->cb = (void *)((unsigned long)ycbcr->cr +
+							 ycbcr->cstride *
+							 GRALLOC_ALIGN(hnd->height / 2, 2));
+		ycbcr->chroma_step = 1;
+		break;
+
+	default:
+		AERR("Not supported format: 0x%x", hnd->format);
+		return -EINVAL;
 	}
 
 	MALI_IGNORE(module);
