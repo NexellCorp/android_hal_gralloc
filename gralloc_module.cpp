@@ -355,7 +355,8 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 
 	switch (hnd->format)
 	{
-	case HAL_PIXEL_FORMAT_YV12:
+	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+	case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 	case HAL_PIXEL_FORMAT_YCbCr_420_P:
 #endif
@@ -373,8 +374,8 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 		ycbcr->chroma_step = 1;
 		break;
 
-	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
-		// yuv420: ycrcb
+	case HAL_PIXEL_FORMAT_YV12:
+		// yvu420: ycrcb
 		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
 		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
 		ycbcr->ystride = hnd->stride;
