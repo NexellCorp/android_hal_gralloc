@@ -366,11 +366,11 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 		ycbcr->ystride = hnd->stride;
 		ycbcr->cb = (void *)((unsigned long)ycbcr->y +
 							 ycbcr->ystride *
-							 GRALLOC_ALIGN(hnd->height, 2));
-		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
+							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
+		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_W_FACTOR);
 		ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
 							 ycbcr->cstride *
-							 GRALLOC_ALIGN(hnd->height / 2, 2));
+							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
 		ycbcr->chroma_step = 1;
 		break;
 
@@ -381,11 +381,11 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 		ycbcr->ystride = hnd->stride;
 		ycbcr->cr = (void *)((unsigned long)ycbcr->y +
 							 ycbcr->ystride *
-							 GRALLOC_ALIGN(hnd->height, 2));
-		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, 16);
+							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
+		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_W_FACTOR);
 		ycbcr->cb = (void *)((unsigned long)ycbcr->cr +
 							 ycbcr->cstride *
-							 GRALLOC_ALIGN(hnd->height / 2, 2));
+							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
 		ycbcr->chroma_step = 1;
 		break;
 
