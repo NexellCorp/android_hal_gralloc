@@ -47,6 +47,10 @@
 #define GRALLOC_ARM_UMP_MODULE 0
 #define GRALLOC_ARM_DMA_BUF_MODULE 1
 
+/* Add for align factor */
+#define GRALLOC_ALIGN_W_FACTOR	32
+#define GRALLOC_ALIGN_H_FACTOR	16
+
 /* NOTE:
  * If your framebuffer device driver is integrated with dma_buf, you will have to
  * change this IOCTL definition to reflect your integration with the framebuffer
