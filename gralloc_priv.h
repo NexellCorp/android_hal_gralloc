@@ -49,6 +49,7 @@
 
 /* Add for align factor */
 #define GRALLOC_ALIGN_W_FACTOR	32
+#define GRALLOC_ALIGN_CAMERA_W_FACTOR	128
 #define GRALLOC_ALIGN_H_FACTOR	16
 
 /* NOTE:

@@ -356,6 +356,19 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 	switch (hnd->format)
 	{
 	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+		// yuv420: ycbcr
+		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
+		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
+		ycbcr->ystride = hnd->stride;
+		ycbcr->cb = (void *)((unsigned long)ycbcr->y +
+							 ycbcr->ystride *
+							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
+		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_CAMERA_W_FACTOR);
+		ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
+							 ycbcr->cstride *
+							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
+		ycbcr->chroma_step = 1;
+		break;
 	case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 	case HAL_PIXEL_FORMAT_YCbCr_420_P:
