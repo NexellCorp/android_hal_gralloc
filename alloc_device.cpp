@@ -424,7 +424,6 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 				break;
 
 			case HAL_PIXEL_FORMAT_YV12:
-			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
 			case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 			case HAL_PIXEL_FORMAT_YCbCr_420_P:
@@ -432,6 +431,10 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 				stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
 				size = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR) * (stride + GRALLOC_ALIGN(stride / 2, GRALLOC_ALIGN_W_FACTOR));
 
+				break;
+			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+				stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_CAMERA_W_FACTOR);
+				size = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR) * (stride + GRALLOC_ALIGN(stride / 2, GRALLOC_ALIGN_CAMERA_W_FACTOR));
 				break;
 #ifdef SUPPORT_LEGACY_FORMAT
 
