@@ -108,7 +108,11 @@ struct private_module_t
 {
 	gralloc_module_t base;
 
+#ifdef __cplusplus
 	private_handle_t *framebuffer;
+#else
+	struct private_handle_t *framebuffer;
+#endif
 	uint32_t flags;
 	uint32_t numBuffers;
 	uint32_t bufferMask;
@@ -128,8 +132,10 @@ struct private_module_t
 		PRIV_USAGE_LOCKED_FOR_POST = 0x80000000
 	};
 
+#ifdef __cplusplus
 	/* default constructor */
 	private_module_t();
+#endif
 };
 
 #ifdef __cplusplus
