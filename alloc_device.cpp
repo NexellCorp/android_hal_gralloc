@@ -482,7 +482,9 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 #endif
 				bpp = 2;
 				break;
-
+			case HAL_PIXEL_FORMAT_BLOB:
+				bpp = 1;
+				break;
 			default:
 				return -EINVAL;
 		}
