@@ -387,7 +387,7 @@ static int gralloc_alloc_framebuffer(alloc_device_t *dev, size_t size, int usage
 {
 	private_module_t *m = reinterpret_cast<private_module_t *>(dev->common.module);
 	pthread_mutex_lock(&m->lock);
-	int err = gralloc_alloc_framebuffer_locked(dev, size, usage, pHandle);
+	int err =  gralloc_alloc_buffer(dev, size, usage, pHandle, ION_HEAP_TYPE_DMA_MASK);
 	pthread_mutex_unlock(&m->lock);
 	return err;
 }

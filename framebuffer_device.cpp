@@ -404,12 +404,9 @@ int init_frame_buffer_locked(struct private_module_t *module)
 	return 0;
 }
 
-static int init_frame_buffer(struct private_module_t *module)
+static int init_frame_buffer(struct private_module_t * /* module */)
 {
-	pthread_mutex_lock(&module->lock);
-	int err = init_frame_buffer_locked(module);
-	pthread_mutex_unlock(&module->lock);
-	return err;
+	return 0;
 }
 
 static int fb_close(struct hw_device_t *device)
@@ -482,21 +479,6 @@ int framebuffer_device_open(hw_module_t const *module, const char *name, hw_devi
 	dev->setUpdateRect = 0;
 	dev->compositionComplete = &compositionComplete;
 
-	int stride = m->finfo.line_length / (m->info.bits_per_pixel >> 3);
-	const_cast<uint32_t &>(dev->flags) = 0;
-	const_cast<uint32_t &>(dev->width) = m->info.xres;
-	const_cast<uint32_t &>(dev->height) = m->info.yres;
-	const_cast<int &>(dev->stride) = stride;
-#ifdef GRALLOC_16_BITS
-	const_cast<int &>(dev->format) = HAL_PIXEL_FORMAT_RGB_565;
-#else
-	const_cast<int &>(dev->format) = HAL_PIXEL_FORMAT_BGRA_8888;
-#endif
-	const_cast<float &>(dev->xdpi) = m->xdpi;
-	const_cast<float &>(dev->ydpi) = m->ydpi;
-	const_cast<float &>(dev->fps) = m->fps;
-	const_cast<int &>(dev->minSwapInterval) = 0;
-	const_cast<int &>(dev->maxSwapInterval) = 1;
 	*device = &dev->common;
 	status = 0;
 
