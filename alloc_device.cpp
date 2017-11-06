@@ -415,37 +415,24 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 #endif
 	   )
 	{
+		size_t y_stride, c_stride, y_hstride, c_hstride;
 		heap_mask = ION_HEAP_TYPE_DMA_MASK;
 		switch (format)
 		{
-			case HAL_PIXEL_FORMAT_YCrCb_420_SP:
-				stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
-				size = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR) * (stride + GRALLOC_ALIGN(stride / 2, GRALLOC_ALIGN_W_FACTOR));
-				break;
-
-			case HAL_PIXEL_FORMAT_YV12:
-			case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 			case HAL_PIXEL_FORMAT_YCbCr_420_P:
-#endif
-				if (usage & GRALLOC_USAGE_HW_VIDEO_ENCODER) {
-					stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_CAMERA_W_FACTOR);
-					size = (stride * GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR)) + (stride * GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR));
-				} else {
-					stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
-					size = (stride * GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR)) + (stride * GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR));
-				}
-
-				break;
-			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
-				stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_CAMERA_W_FACTOR);
-				size = (stride * GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR)) + (stride * GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR));
-				break;
-#ifdef SUPPORT_LEGACY_FORMAT
-
 			case HAL_PIXEL_FORMAT_YCbCr_420_SP:
-				stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
-				size = (stride * GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR)) + (stride * GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR));
+#endif
+			case HAL_PIXEL_FORMAT_YCrCb_420_SP:
+			case HAL_PIXEL_FORMAT_YV12:
+			case HAL_PIXEL_FORMAT_YCbCr_420_888:
+			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
+				y_stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
+				c_stride = GRALLOC_ALIGN(w/2, GRALLOC_ALIGN_W_FACTOR);
+				y_hstride = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR);
+				c_hstride = GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR);
+				stride = y_stride;
+				size = (y_stride * y_hstride) + (2 * (c_stride * c_hstride));
 				break;
 
 			case HAL_PIXEL_FORMAT_YCbCr_422_I:
@@ -453,7 +440,6 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 				size = h * stride * 2;
 
 				break;
-#endif
 
 			default:
 				return -EINVAL;

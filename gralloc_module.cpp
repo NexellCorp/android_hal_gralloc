@@ -353,37 +353,23 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 
 	pthread_mutex_unlock(&s_map_lock);
 
+	size_t y_hstride, c_hstride;
 	switch (hnd->format)
 	{
-	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
-		// yuv420: ycbcr
-		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
-		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
-		ycbcr->ystride = hnd->stride;
-		ycbcr->cb = (void *)((unsigned long)ycbcr->y +
-							 ycbcr->ystride *
-							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
-		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_CAMERA_W_FACTOR);
-		ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
-							 ycbcr->cstride *
-							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
-		ycbcr->chroma_step = 1;
-		break;
-	case HAL_PIXEL_FORMAT_YCbCr_420_888:
 #ifdef SUPPORT_LEGACY_FORMAT
 	case HAL_PIXEL_FORMAT_YCbCr_420_P:
 #endif
+	case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
 		// yuv420: ycbcr
+	case HAL_PIXEL_FORMAT_YCbCr_420_888:
 		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
 		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
 		ycbcr->ystride = hnd->stride;
-		ycbcr->cb = (void *)((unsigned long)ycbcr->y +
-							 ycbcr->ystride *
-							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
-		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_W_FACTOR);
-		ycbcr->cr = (void *)((unsigned long)ycbcr->cb +
-							 ycbcr->cstride *
-							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
+		y_hstride = GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR);
+		ycbcr->cb = (void *)((unsigned long)ycbcr->y + ycbcr->ystride * y_hstride);
+		ycbcr->cstride = GRALLOC_ALIGN(hnd->width / 2, GRALLOC_ALIGN_W_FACTOR);
+		c_hstride = GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR);
+		ycbcr->cr = (void *)((unsigned long)ycbcr->cb + ycbcr->cstride * c_hstride);
 		ycbcr->chroma_step = 1;
 		break;
 
@@ -392,13 +378,11 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 		memset(ycbcr->reserved, 0, sizeof(ycbcr->reserved));
 		ycbcr->y = (void *)((unsigned long)hnd->base + hnd->offset);
 		ycbcr->ystride = hnd->stride;
-		ycbcr->cr = (void *)((unsigned long)ycbcr->y +
-							 ycbcr->ystride *
-							 GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR));
-		ycbcr->cstride = GRALLOC_ALIGN(ycbcr->ystride / 2, GRALLOC_ALIGN_W_FACTOR);
-		ycbcr->cb = (void *)((unsigned long)ycbcr->cr +
-							 ycbcr->cstride *
-							 GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR));
+		y_hstride = GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR);
+		ycbcr->cr = (void *)((unsigned long)ycbcr->y + ycbcr->ystride * y_hstride);
+		ycbcr->cstride = GRALLOC_ALIGN(hnd->width / 2, GRALLOC_ALIGN_W_FACTOR);
+		c_hstride = GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR);
+		ycbcr->cb = (void *)((unsigned long)ycbcr->cr + ycbcr->cstride * c_hstride);
 		ycbcr->chroma_step = 1;
 		break;
 
