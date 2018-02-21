@@ -427,8 +427,8 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 			case HAL_PIXEL_FORMAT_YV12:
 			case HAL_PIXEL_FORMAT_YCbCr_420_888:
 			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
-				y_stride = GRALLOC_ALIGN(w, GRALLOC_ALIGN_W_FACTOR);
 				c_stride = GRALLOC_ALIGN(w/2, GRALLOC_ALIGN_W_FACTOR);
+				y_stride = c_stride * 2;
 				y_hstride = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR);
 				c_hstride = GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR);
 				stride = y_stride;
