@@ -55,6 +55,7 @@
 #endif
 #define GRALLOC_ALIGN_CAMERA_W_FACTOR	128
 #define GRALLOC_ALIGN_H_FACTOR	16
+#define GRALLOC_ALIGN_DEINTERLACER_W_FACTOR	512
 
 /* NOTE:
  * If your framebuffer device driver is integrated with dma_buf, you will have to

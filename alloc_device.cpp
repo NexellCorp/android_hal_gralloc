@@ -410,6 +410,8 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 	   )
 	{
 		size_t y_stride, c_stride, y_hstride, c_hstride;
+		int factor = 0;
+
 		heap_mask = ION_HEAP_TYPE_DMA_MASK;
 		switch (format)
 		{
@@ -421,7 +423,11 @@ static int alloc_device_alloc(alloc_device_t *dev, int w, int h, int format, int
 			case HAL_PIXEL_FORMAT_YV12:
 			case HAL_PIXEL_FORMAT_YCbCr_420_888:
 			case HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED:
-				c_stride = GRALLOC_ALIGN(w/2, GRALLOC_ALIGN_W_FACTOR);
+				if ((usage & GRALLOC_USAGE_PRIVATE_0) == GRALLOC_USAGE_PRIVATE_0)
+					factor = GRALLOC_ALIGN_DEINTERLACER_W_FACTOR;
+				else
+					factor = GRALLOC_ALIGN_W_FACTOR;
+				c_stride = GRALLOC_ALIGN(w/2, factor);
 				y_stride = c_stride * 2;
 				y_hstride = GRALLOC_ALIGN(h, GRALLOC_ALIGN_H_FACTOR);
 				c_hstride = GRALLOC_ALIGN(h/2, GRALLOC_ALIGN_H_FACTOR);
