@@ -367,7 +367,7 @@ static int gralloc_lock_ycbcr(gralloc_module_t const *module,
 		ycbcr->ystride = hnd->stride;
 		y_hstride = GRALLOC_ALIGN(hnd->height, GRALLOC_ALIGN_H_FACTOR);
 		ycbcr->cb = (void *)((unsigned long)ycbcr->y + ycbcr->ystride * y_hstride);
-		ycbcr->cstride = GRALLOC_ALIGN(hnd->width / 2, GRALLOC_ALIGN_W_FACTOR);
+		ycbcr->cstride = ycbcr->ystride/2;
 		c_hstride = GRALLOC_ALIGN(hnd->height / 2, GRALLOC_ALIGN_H_FACTOR);
 		ycbcr->cr = (void *)((unsigned long)ycbcr->cb + ycbcr->cstride * c_hstride);
 		ycbcr->chroma_step = 1;
